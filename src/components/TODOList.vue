@@ -20,7 +20,7 @@
             <Icon name="started" v-if="!item.finished"></Icon>
             <Icon name="finished" v-else></Icon>
           </div>
-          <div class="list-item__title">
+          <div class="list-item__title" @click="showItemInfo(item)">
             {{ item.title }}
           </div>
           <div class="list-item__action">
@@ -41,11 +41,19 @@
       </div>
     </div>
   </div>
+  <Teleport to="body">
+    <ItemInfo
+      :isShowModal="isShowItemModal"
+      :item="InfoItem"
+      @close="closeModal"
+    />
+  </Teleport>
 </template>
 
 <script setup>
 import Icon from "@/components/atoms/Icon.vue";
-import { defineEmits, defineProps, toRefs } from "vue";
+import { defineEmits, defineProps, ref, toRefs } from "vue";
+import ItemInfo from "@/components/modals/ItemInfo.vue";
 
 const props = defineProps({
   list: {
@@ -64,7 +72,8 @@ const props = defineProps({
 const { list, finishedItemsCount, allItemsCount } = toRefs(props);
 
 const emit = defineEmits(["remove"]);
-
+const isShowItemModal = ref(false);
+const InfoItem = ref({});
 const changeProgress = (itemId) => {
   const itemIndex = list.value.findIndex((item) => item.id === itemId);
 
@@ -72,6 +81,16 @@ const changeProgress = (itemId) => {
     const item = list.value[itemIndex];
     item.finished = !item.finished;
   }
+};
+
+const showItemInfo = (item) => {
+  InfoItem.value = item;
+  isShowItemModal.value = true;
+};
+
+const closeModal = () => {
+  InfoItem.value = {};
+  isShowItemModal.value = false;
 };
 
 const removeItem = (itemId) => {

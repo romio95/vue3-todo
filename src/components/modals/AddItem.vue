@@ -89,6 +89,7 @@ const resetForm = () => {
   backdrop-filter: blur(10px);
   display: flex;
   transition: opacity 0.3s ease;
+
   &-wrap {
     width: 600px;
     margin: auto;
