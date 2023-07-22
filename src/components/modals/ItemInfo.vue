@@ -1,7 +1,7 @@
 <template>
   <Transition name="modal">
     <div class="info" v-if="isShowModal">
-      <div class="info-bg"></div>
+      <div class="info-bg" @click="closeModal"></div>
       <div class="info-wrap">
         <div class="info-content">
           <div class="info-close" @click="closeModal">
@@ -12,7 +12,7 @@
               <div class="info-item__title">Name:</div>
               <div class="info-item__info">{{ item.title }}</div>
             </div>
-            <div class="info-item">
+            <div class="info-item" v-if="item.description">
               <div class="info-item__title">Description:</div>
               <div class="info-item__info">{{ item.description }}</div>
             </div>
@@ -59,12 +59,13 @@ const closeModal = () => {
 };
 
 const formatDate = (inputDate) => {
-  const day = inputDate.getUTCDate().toString().padStart(2, "0");
-  const month = (inputDate.getUTCMonth() + 1).toString().padStart(2, "0");
-  const year = inputDate.getUTCFullYear().toString().slice(-2);
+  const date = new Date(inputDate)
+  const day = date.getUTCDate().toString().padStart(2, "0");
+  const month = (date.getUTCMonth() + 1).toString().padStart(2, "0");
+  const year = date.getUTCFullYear().toString().slice(-2);
 
-  const hours = inputDate.getUTCHours().toString().padStart(2, "0");
-  const minutes = inputDate.getUTCMinutes().toString().padStart(2, "0");
+  const hours = date.getUTCHours().toString().padStart(2, "0");
+  const minutes = date.getUTCMinutes().toString().padStart(2, "0");
 
   return `${day}.${month}.${year} ${hours}:${minutes}`;
 };

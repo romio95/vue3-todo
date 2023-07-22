@@ -16,7 +16,7 @@
           :key="item.id"
           :class="{ finished: item.finished }"
         >
-          <div class="list-item__progress" @click="changeProgress(item.id)">
+          <div class="list-item__progress" @click="changeItem(item.id)">
             <Icon name="started" v-if="!item.finished"></Icon>
             <Icon name="finished" v-else></Icon>
           </div>
@@ -24,7 +24,7 @@
             {{ item.title }}
           </div>
           <div class="list-item__action">
-            <a href="" @click.prevent="removeItem(item.id)">
+            <a href="" @click.prevent="showRemoveModal(item)">
               <Icon name="delete"></Icon>
             </a>
           </div>
@@ -42,18 +42,28 @@
     </div>
   </div>
   <Teleport to="body">
-    <ItemInfo
-      :isShowModal="isShowItemModal"
-      :item="InfoItem"
-      @close="closeModal"
+    <InfoModal
+      :isShowModal="isShowInfoModal"
+      :item="infoItem"
+      @close="closeInfoModal"
+    />
+  </Teleport>
+  <Teleport to="body">
+    <RemoveModal
+      :isShowModal="isShowRemoveModal"
+      :item="removedItem"
+      @close="closeRemoveModal"
+      @remove="removeItem($event)"
     />
   </Teleport>
 </template>
 
 <script setup>
 import Icon from "@/components/atoms/Icon.vue";
+import InfoModal from "@/components/modals/ItemInfo.vue";
+import RemoveModal from "@/components/modals/RemoveItem.vue";
+
 import { defineEmits, defineProps, ref, toRefs } from "vue";
-import ItemInfo from "@/components/modals/ItemInfo.vue";
 
 const props = defineProps({
   list: {
@@ -71,30 +81,37 @@ const props = defineProps({
 
 const { list, finishedItemsCount, allItemsCount } = toRefs(props);
 
-const emit = defineEmits(["remove"]);
-const isShowItemModal = ref(false);
-const InfoItem = ref({});
-const changeProgress = (itemId) => {
-  const itemIndex = list.value.findIndex((item) => item.id === itemId);
+const emit = defineEmits(["remove", "change"]);
+const isShowInfoModal = ref(false);
+const isShowRemoveModal = ref(false);
+const infoItem = ref({});
+const removedItem = ref({});
 
-  if (itemIndex !== -1) {
-    const item = list.value[itemIndex];
-    item.finished = !item.finished;
-  }
-};
+const changeItem = (itemId) => {
+  emit("change", itemId);
+}
 
 const showItemInfo = (item) => {
-  InfoItem.value = item;
-  isShowItemModal.value = true;
+  infoItem.value = item;
+  isShowInfoModal.value = true;
+};
+const closeInfoModal = () => {
+  infoItem.value = {};
+  isShowInfoModal.value = false;
 };
 
-const closeModal = () => {
-  InfoItem.value = {};
-  isShowItemModal.value = false;
+const showRemoveModal = (item) => {
+  removedItem.value = item;
+  isShowRemoveModal.value = true;
+};
+const closeRemoveModal = () => {
+  removedItem.value = {};
+  isShowRemoveModal.value = false;
 };
 
 const removeItem = (itemId) => {
   emit("remove", itemId);
+  closeRemoveModal()
 };
 </script>
 
